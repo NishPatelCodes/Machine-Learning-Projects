@@ -1,0 +1,81 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+class logistic_regression():
+    def __init__(self,iterations=10000,L_rate = 0.005):
+        self.iterations = iterations
+        self.L_rate = L_rate
+
+    def sigmoid(self,z):
+        return 1 / (1 + np.exp(-z))
+    
+    def fit(self,X,Y,theta0 = 0):
+        self.theta0 = theta0
+        self.theta = np.zeros(X.shape[1])
+        m = len(Y)
+        error = 0
+        iteration = 0
+        while True:
+            iteration += 1
+            past_error = error
+            z = X.dot(self.theta) + self.theta0
+            hypo = self.sigmoid(z)
+
+            # i am adding epsilion a small constant to get rid of 0 logs
+            epsilon = 1e-9
+            hypo = np.clip(hypo, epsilon, 1 - epsilon) 
+            
+            error = -np.sum(Y*np.log(hypo) + (1-Y)*np.log(1-hypo))
+            grad = X.T.dot(Y - hypo)
+            grad0 = np.sum(Y - hypo)
+            self.theta += self.L_rate * grad
+            self.theta0 += self.L_rate * grad0
+            
+            if iteration % 10 == 0:
+                print(f"(error: {error}, iteration: {iteration})")
+
+            #stop when converges or till iteration limit
+            if abs(past_error - error) < 1e-6 or iteration >= self.iterations:
+                avg_error = error / len(Y)
+                print("Average log-loss:", avg_error)
+                break
+
+    def predict(self,X):
+        z = np.dot(X, self.theta) + self.theta0
+        return self.sigmoid(z)
+    
+if __name__ == "__main__":
+
+    df = pd.read_csv(r'C:\NISH_FUTURE\2025\Python\ML\Dataset\plant_growth_data.csv')
+
+    #converting non-numerical columns into numerical 
+    df['Soil_Type'] = df['Soil_Type'].map({'loam': 0, 'sandy': 1, "clay" : 2})
+    df['Water_Frequency'] = df['Water_Frequency'].map({'bi-weekly': 0, 'weekly': 1, "daily" : 2})
+    df['Fertilizer_Type'] = df['Fertilizer_Type'].map({'chemical': 0, 'organic': 1, "none" : 2})
+
+    X = ["Sunlight_Hours","Temperature","Humidity","Soil_Type","Water_Frequency","Fertilizer_Type"]
+    Y = "Growth_Milestone"
+
+    # Scaling to improve our results
+    means = {}
+    stds = {}
+    for col in X:
+        means[col] = df[col].mean()
+        stds[col] = df[col].std()
+        df[col] = (df[col] - means[col]) / stds[col]
+
+    model = logistic_regression()
+    model.fit(df[X].values, df[Y].values)
+
+    #Tests
+    sample1 = np.array([[8, 30, 60, 0, 2, 1]]) 
+    sample2 = np.array([[2, 10, 20, 2, 0, 0]])  
+
+    # Scaled Tests
+    sample1_scaled = (sample1 - [means[c] for c in X]) / [stds[c] for c in X]
+    sample2_scaled = (sample2 - [means[c] for c in X]) / [stds[c] for c in X]
+
+    print(model.predict(sample1_scaled))
+    print(model.predict(sample2_scaled))
+

@@ -1,5 +1,5 @@
 Welcome to my first-ever ML project!!
-This project is a very basic implimentation of linear regression using only numpy.
+This projects are very basic implimentation of linear regression using only numpy.
 
 ## Learning
 I learnt the formulas and processes through Stanford's CS229 Course taught by andrew ng 
@@ -13,15 +13,11 @@ I learnt the formulas and processes through Stanford's CS229 Course taught by an
 - Vectorized implementation for efficiency
 - Gradient descent optimization
 - Loss tracking and visualization
+- scaling 
+- Log-loss
 
 ## Dataset
 NYC Yellow Taxi 2022 Dataset
-Features used: trip_distance, passenger_count, tip_amount, tolls_amount
-Target: total_amount
 
-## Usage
-from linear_regression import LinearRegressionFromScratch
-
-model = LinearRegressionFromScratch()
-model.fit(X_train, y_train)
-predictions = model.predict(X_test)
+plant_growth_data
+from kaggle
